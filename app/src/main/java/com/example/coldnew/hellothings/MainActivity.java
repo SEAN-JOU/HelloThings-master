@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ActivityCompat.requestPermissions(this, new String[]{"com.google.android.things.permission.MANAGE_INPUT_DRIVERS",
+        ActivityCompat.requestPermissions(this, new String[]{
+                "com.google.android.things.permission.MANAGE_INPUT_DRIVERS",
                 "com.google.android.things.permission.USE_PERIPHERAL_IO"}, 0);
 
         database = FirebaseDatabase.getInstance();
