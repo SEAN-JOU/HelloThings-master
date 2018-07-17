@@ -5,6 +5,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.google.android.things.contrib.driver.voicehat.Max98357A;
+import com.google.android.things.contrib.driver.voicehat.VoiceHat;
 import com.google.android.things.pio.Gpio;
 import com.google.android.things.pio.PeripheralManager;
 import com.google.firebase.database.DataSnapshot;
@@ -12,7 +15,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.io.IOException;
 
 
@@ -39,7 +41,11 @@ public class MainActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("message");
-
+//        try {
+//            Max98357A dac = VoiceHat.openDac();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private Runnable mBlinkRunnable = new Runnable() {
@@ -74,16 +80,16 @@ public class MainActivity extends AppCompatActivity {
                         mLedGpio.setValue(true);
                         Log.i(TAG, "Start blinking LED by GPIO21");
                         mHandler.post(mBlinkRunnable);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         Log.e(TAG, "Error on PeripheralIO API", e);
                     }
                 }
-                else {
+                else if(value.equals("false")) {
                     mHandler.removeCallbacks(mBlinkRunnable); // <---- Add this
                     Log.i(TAG, "Closing LED GPIO21 pin");
                     try {
                         mLedGpio.close();
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         Log.e(TAG, "Error on PeripheralIO API", e);
                     } finally {
                         mLedGpio = null;
