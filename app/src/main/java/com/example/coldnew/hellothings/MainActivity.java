@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.things.contrib.driver.pwmservo.Servo;
 import com.google.android.things.pio.Gpio;
 import com.google.android.things.pio.PeripheralManager;
 import com.google.firebase.database.DataSnapshot;
@@ -29,12 +30,25 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference dbLED, dbMOTOR;
     FirebaseDatabase database;
     private Gpio mMotorGpio_plus, mMotorGpio_reduce;
+    Servo mServo;
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try {
+        mServo = new Servo("PWM0");
+        mServo.setPulseDurationRange(0.6, 2.5);
+        mServo.setAngleRange(0, 180);
+        mServo.setEnabled(true);
+        mServo.setAngle(90);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         ActivityCompat.requestPermissions(this, new String[]{
                 "com.google.android.things.permission.MANAGE_INPUT_DRIVERS",
