@@ -6,33 +6,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.things.contrib.driver.pwmservo.Servo;
+
 import com.google.android.things.pio.Gpio;
 import com.google.android.things.pio.PeripheralManager;
+import com.google.android.things.pio.Pwm;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.io.IOException;
+
 
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "HelloThings";
     private static final String LED = "BCM21";
-    public static final String MOTOR_PIN_PLUS = "BCM18"; //physical pin #12
+    public static final String MOTOR_PIN_PLUS = "BCM15"; //physical pin #12
     public static final String MOTOR_PIN_REDUCE = "BCM17"; //physical pin #11
+    private static final String PWM_PIN = "PWM1"; //physical pin #32
     private static final int INTERVAL_BETWEEN_BLINKS_MS = 1000;
     private Handler mHandler = new Handler();
     private Gpio mLedGpio;
     PeripheralManager service;
-    DatabaseReference dbLED, dbMOTOR;
+    DatabaseReference dbLED, dbMOTOR, dbSERVO;
     FirebaseDatabase database;
     private Gpio mMotorGpio_plus, mMotorGpio_reduce;
-    Servo mServo;
-
-
+    private Pwm mServo;
 
 
     @Override
@@ -40,29 +40,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
-        mServo = new Servo("PWM0");
-        mServo.setPulseDurationRange(0.6, 2.5);
-        mServo.setAngleRange(0, 180);
-        mServo.setEnabled(true);
-        mServo.setAngle(90);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         ActivityCompat.requestPermissions(this, new String[]{
                 "com.google.android.things.permission.MANAGE_INPUT_DRIVERS",
                 "com.google.android.things.permission.USE_PERIPHERAL_IO"}, 0);
-
+        service = PeripheralManager.getInstance();
         database = FirebaseDatabase.getInstance();
         dbLED = database.getReference("dbLED");
         dbMOTOR = database.getReference("dbMOTOR");
-//        try {
-//            Max98357A dac = VoiceHat.openDac();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        dbSERVO = database.getReference("dbSERVO");
+
+        try {
+            mServo = service.openPwm(PWM_PIN);
+            mServo.setPwmFrequencyHz(50);
+        } catch (Exception es) {
+            Log.d("aaaa", "bad");
+        }
+        //  http://myandroidthings.com/post/tutorial-10   非常重要 方向控制器
     }
+
 
     private Runnable mBlinkRunnable = new Runnable() {
         @Override
@@ -75,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "GPIO21 set to " + mLedGpio.getValue());
                 mHandler.postDelayed(mBlinkRunnable, INTERVAL_BETWEEN_BLINKS_MS);
             } catch (IOException e) {
-                Log.e(TAG, "Error on PeripheralIO API", e);
+                Log.d(TAG, "Error on PeripheralIO API", e);
             }
         }
     };
@@ -88,27 +83,34 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
 
-                Log.d("aaaa", "Value is: " + value);
+                Log.d(TAG, "Value is: " + value);
+
+//                try {
+//                mLedGpio = service.openGpio(LED);
+//                mLedGpio.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+
 
                 if (value.equals("true")) {
                     try {
-                        service = PeripheralManager.getInstance();
                         mLedGpio = service.openGpio(LED);
                         mLedGpio.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
                         mLedGpio.setValue(true);
-                        Log.i(TAG, "Start blinking LED by GPIO21");
+                        Log.d(TAG, "Start blinking LED by GPIO21");
                         mHandler.post(mBlinkRunnable);
                     } catch (Exception e) {
-                        Log.e(TAG, "Error on PeripheralIO API", e);
+                        Log.d(TAG, "Error on PeripheralIO API", e);
                     }
                 } else if (value.equals("false")) {
                     mHandler.removeCallbacks(mBlinkRunnable); // <---- Add this
-                    Log.i(TAG, "Closing LED GPIO21 pin");
+                    Log.d(TAG, "Closing LED GPIO21 pin");
                     try {
                         mLedGpio.setValue(false);
                         mLedGpio.close();
                     } catch (Exception e) {
-                        Log.e(TAG, "Error on PeripheralIO API", e);
+                        Log.d(TAG, "Error on PeripheralIO API", e);
                     } finally {
                         mLedGpio = null;
                     }
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Log.d("aaaa", "Value is: " + "error");
+                Log.d(TAG, "Value is: " + "error");
             }
         });
         dbMOTOR.addValueEventListener(new ValueEventListener() {
@@ -129,52 +131,67 @@ public class MainActivity extends AppCompatActivity {
                     mMotorGpio_reduce = service.openGpio(MOTOR_PIN_REDUCE);
                     mMotorGpio_plus.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
                     mMotorGpio_reduce.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
-//                    mBtnGpio.setEdgeTriggerType(Gpio.EDGE_BOTH);
-//                    mMotorGpio.registerGpioCallback(mMotorCallback);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                if (value.equals("right")) {
+                if (value.equals("go")) {
                     try {
-                        turnRight();
+                        setPinValues(false, true);//go
                     } catch (Exception e) {
-                        Log.e(TAG, "Error on PeripheralIO API", e);
                     }
-                }
-                else if (value.equals("stop")) {
+                } else if (value.equals("stop")) {
                     try {
-                        stop();
+                        setPinValues(false, false);//stop
                     } catch (Exception e) {
-                        e.printStackTrace();
                     }
-                }
-                else if (value.equals("left")) {
+                } else if (value.equals("back")) {
                     try {
-                        turnLeft();
+                        setPinValues(true, false);//back
                     } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-            }});}
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
+            }
+        });
+        dbSERVO.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String value = dataSnapshot.getValue(String.class);
 
-    public void stop() {
-        setPinValues(false, false);
-    }
+                if (value.equals("right")) {
+                    try {
+                        mServo.setPwmDutyCycle(2.5);
+                        mServo.setEnabled(true);
+                        Log.d("aaaa", "right");
+                    } catch (Exception e) {
+                        Log.d("aaaa", "badright");
+                    }
+                } else if (value.equals("front")) {
+                    try {
+                        mServo.setPwmDutyCycle(7.5);
+                        Log.d("aaaa", "front");
+                    } catch (Exception e) {
+                        Log.d("aaaa", "badfront");
+                    }
+                } else if (value.equals("left")) {
+                    try {
+                        mServo.setPwmDutyCycle(12.5);
+                        Log.d("aaaa", "left");
+                    } catch (Exception e) {
+                        Log.d("aaaa", "badleft");
+                    }
+                }
 
-    public void turnLeft() {
-        setPinValues(false, true);
-    }
+            }
 
-    public void turnRight() {
-        setPinValues(true, false);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
     private void setPinValues(boolean plus, boolean reduce) {
@@ -187,32 +204,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-//    private GpioCallback mMotorCallback = new GpioCallback() {
-//        @Override
-//        public boolean onGpioEdge(Gpio gpio) {
-//            Log.i(TAG, "GPIO callback ------------");
-//
-//
-//            if (mMotorGpio == null) {
-//                return true;
-//            }
-//
-//            try {
-//                if (gpio.getValue()) {
-//                    // stop the motor. set output LOW.
-//                    Log.d(TAG, "Stop Motor");
-//                    mMotorGpio.setValue(false);
-//                } else {
-//                    // start the motor. set output HIGH.
-//                    Log.d(TAG, "Start Motor");
-//                    mMotorGpio.setValue(true);
-//                }
-//
-//            } catch (IOException e) {
-//                Log.e(TAG, "Error on PeripheralIO API", e);
-//            }
-//            // Return true to keep callback active.
-//            return true;
-//        }
-//    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+
 }
