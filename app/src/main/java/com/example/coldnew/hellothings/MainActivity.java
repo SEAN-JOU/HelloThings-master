@@ -1,12 +1,11 @@
 package com.example.coldnew.hellothings;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-
-
 import com.google.android.things.pio.Gpio;
 import com.google.android.things.pio.PeripheralManager;
 import com.google.android.things.pio.Pwm;
@@ -17,19 +16,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 
-
-
 public class MainActivity extends AppCompatActivity {
+
+
     private static final String TAG = "HelloThings";
     private static final String LED = "BCM21";
     public static final String MOTOR_PIN_PLUS = "BCM15"; //physical pin #12
     public static final String MOTOR_PIN_REDUCE = "BCM17"; //physical pin #11
-    private static final String PWM_PIN = "PWM1"; //physical pin #32
+    private static final String PWM_PIN = "PWM1"; //physical pin 33
     private static final int INTERVAL_BETWEEN_BLINKS_MS = 1000;
     private Handler mHandler = new Handler();
     private Gpio mLedGpio;
     PeripheralManager service;
-    DatabaseReference dbLED, dbMOTOR, dbSERVO;
+    DatabaseReference dbLED, dbMOTOR, dbSERVO,dbAI;
     FirebaseDatabase database;
     private Gpio mMotorGpio_plus, mMotorGpio_reduce;
     private Pwm mServo;
@@ -43,15 +42,17 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]{
                 "com.google.android.things.permission.MANAGE_INPUT_DRIVERS",
                 "com.google.android.things.permission.USE_PERIPHERAL_IO"}, 0);
+
+
         service = PeripheralManager.getInstance();
         database = FirebaseDatabase.getInstance();
         dbLED = database.getReference("dbLED");
         dbMOTOR = database.getReference("dbMOTOR");
         dbSERVO = database.getReference("dbSERVO");
-
+        dbAI= database.getReference("dbAI");
         try {
             mServo = service.openPwm(PWM_PIN);
-            mServo.setPwmFrequencyHz(50);
+
         } catch (Exception es) {
             Log.d("aaaa", "bad");
         }
@@ -77,6 +78,23 @@ public class MainActivity extends AppCompatActivity {
 
     public void onResume() {
         super.onResume();
+
+        dbAI.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String value = dataSnapshot.getValue(String.class);
+                if (value.equals("true")) {
+                  Intent intent = new Intent(MainActivity.this,MainActivity2.class);
+                  startActivity(intent);
+                  finish();
+                }
+                 else if (value.equals("false")) {
+
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }});
 
         dbLED.addValueEventListener(new ValueEventListener() {
             @Override
@@ -163,35 +181,51 @@ public class MainActivity extends AppCompatActivity {
                 String value = dataSnapshot.getValue(String.class);
 
                 if (value.equals("right")) {
-                    try {
-                        mServo.setPwmDutyCycle(2.5);
-                        mServo.setEnabled(true);
-                        Log.d("aaaa", "right");
-                    } catch (Exception e) {
-                        Log.d("aaaa", "badright");
-                    }
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() { try {
+                                mServo.setPwmFrequencyHz(50);
+                                mServo.setPwmDutyCycle(2.5);
+                                mServo.setEnabled(true);
+                                Log.d("aaaa", "right");
+                            } catch (Exception e) {
+                                Log.d("aaaa", "badright");
+                            }
+                            }}).start();
+
+
                 } else if (value.equals("front")) {
-                    try {
-                        mServo.setPwmDutyCycle(7.5);
-                        Log.d("aaaa", "front");
-                    } catch (Exception e) {
-                        Log.d("aaaa", "badfront");
-                    }
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                mServo.setPwmFrequencyHz(50);
+                                mServo.setPwmDutyCycle(7.5);
+                                Log.d("aaaa", "front");
+                            } catch (Exception e) {
+                                Log.d("aaaa", "badfront");
+                            }
+                        }
+                    }).start();
+
                 } else if (value.equals("left")) {
-                    try {
-                        mServo.setPwmDutyCycle(12.5);
-                        Log.d("aaaa", "left");
-                    } catch (Exception e) {
-                        Log.d("aaaa", "badleft");
-                    }
-                }
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                mServo.setPwmFrequencyHz(50);
+                                mServo.setPwmDutyCycle(12.5);
+                                Log.d("aaaa", "left");
+                            } catch (Exception e) {
+                                Log.d("aaaa", "badleft");
+                            }
+                        }}).start();
 
-            }
-
+                }}
             @Override
             public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+            }});
     }
 
     private void setPinValues(boolean plus, boolean reduce) {
@@ -210,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
     }
+
+
 
 
 }

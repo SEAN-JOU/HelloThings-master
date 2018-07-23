@@ -19,22 +19,23 @@
         android:supportsRtl="true" android:theme="@style/AppTheme">
         <uses-library android:name="com.google.android.things"/>
         <!--<uses-library android:name="com.google.android.things.permission.USE_PERIPHERAL_IO"/>-->
+
+
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-             Launch activity automatically on boot
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.HOME"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
-
         </activity>
+
+    <activity android:name=".MainActivity2"/>
     </application>
 
 </manifest>
