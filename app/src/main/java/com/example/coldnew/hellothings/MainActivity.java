@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String LED = "BCM21";
     public static final String MOTOR_PIN_PLUS = "BCM15"; //physical pin #12
     public static final String MOTOR_PIN_REDUCE = "BCM17"; //physical pin #11
-    private static final String PWM_PIN = "PWM1"; //physical pin 33
+    private static final String PWM_PIN = "PWM1"; //physical pin 35 or 33
     private static final int INTERVAL_BETWEEN_BLINKS_MS = 1000;
     private Handler mHandler = new Handler();
     private Gpio mLedGpio;
@@ -148,8 +148,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     mMotorGpio_plus = service.openGpio(MOTOR_PIN_PLUS);
                     mMotorGpio_reduce = service.openGpio(MOTOR_PIN_REDUCE);
-                    mMotorGpio_plus.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
-                    mMotorGpio_reduce.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
+                    mMotorGpio_plus.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
+                    mMotorGpio_reduce.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
 
                 } catch (IOException e) {
                     e.printStackTrace();
