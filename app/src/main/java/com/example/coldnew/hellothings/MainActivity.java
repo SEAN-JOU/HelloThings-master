@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database;
     private Gpio mMotorGpio_plus, mMotorGpio_reduce;
     private Pwm mServo;
+    double aDouble =70;
 
 
     @Override
@@ -185,8 +186,8 @@ public class MainActivity extends AppCompatActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() { try {
-                                mServo.setPwmFrequencyHz(50);
-                                mServo.setPwmDutyCycle(2.5);
+                                mServo.setPwmFrequencyHz(aDouble);
+                                mServo.setPwmDutyCycle(5);
                                 mServo.setEnabled(true);
                                 Log.d("aaaa", "right");
                             } catch (Exception e) {
@@ -200,8 +201,8 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             try {
-                                mServo.setPwmFrequencyHz(50);
-                                mServo.setPwmDutyCycle(7.5);
+                                mServo.setPwmFrequencyHz(aDouble);
+                                mServo.setPwmDutyCycle(10);
                                 Log.d("aaaa", "front");
                             } catch (Exception e) {
                                 Log.d("aaaa", "badfront");
@@ -214,8 +215,8 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             try {
-                                mServo.setPwmFrequencyHz(50);
-                                mServo.setPwmDutyCycle(12.5);
+                                mServo.setPwmFrequencyHz(aDouble);
+                                mServo.setPwmDutyCycle(15);
                                 Log.d("aaaa", "left");
                             } catch (Exception e) {
                                 Log.d("aaaa", "badleft");
