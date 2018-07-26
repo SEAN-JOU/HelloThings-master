@@ -7,9 +7,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-
 import com.google.android.things.pio.Gpio;
 import com.google.android.things.pio.GpioCallback;
 import com.google.android.things.pio.PeripheralManager;
@@ -29,11 +26,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     private static final String TAG = "HelloThings";
-    private static final String LED = "BCM21";
-//    public static final String MOTOR_PIN_PLUS = "BCM14"; //physical pin #8
-//    public static final String MOTOR_PIN_REDUCE = "BCM27"; //physical pin #11
-    public static final String MOTOR_PIN_PLUS = "BCM15"; //physical pin #10
-    public static final String MOTOR_PIN_REDUCE = "BCM17"; //physical pin #11
+    private static final String LED = "BCM26"; //physical pin #37
+    public static final String RMOTOR_PIN_PLUS = "BCM14"; //physical pin #8
+    public static final String RMOTOR_PIN_REDUCE = "BCM27"; //physical pin #11
+
+    public static final String LMOTOR_PIN_PLUS = "BCM15"; //physical pin #10
+    public static final String LMOTOR_PIN_REDUCE = "BCM17"; //physical pin #11
     private static final String PWM_PIN = "PWM1"; //physical pin 35 or 33
     private static final String ECHO_PIN_NAME = "BCM20";
     private static final String TRIGGER_PIN_NAME = "BCM21";
@@ -45,14 +43,14 @@ public class MainActivity extends AppCompatActivity {
     PeripheralManager service;
     DatabaseReference dbLED, dbMOTOR, dbSERVO,dbAI,dbUltrasound,dbDistance;
     FirebaseDatabase database;
-    private Gpio mMotorGpio_plus, mMotorGpio_reduce;
+    private Gpio rmMotorGpio_plus,rmMotorGpio_reduce,lmMotorGpio_plus,lmMotorGpio_reduce;
     private Pwm mServo;
     double aDouble =70;
     private Handler mCallbackHandler;
     private Handler ultrasonicTriggerHandler;
     private static final int INTERVAL_BETWEEN_TRIGGERS = 3000;
     long time1, time2;
-    Button btn;
+
 
 
     private Runnable triggerRunnable = new Runnable() {
@@ -71,13 +69,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btn=findViewById(R.id.btn);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+
 
         ActivityCompat.requestPermissions(this, new String[]{
                 "com.google.android.things.permission.MANAGE_INPUT_DRIVERS",
@@ -326,27 +318,46 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 try {
-                    mMotorGpio_plus = service.openGpio(MOTOR_PIN_PLUS);
-                    mMotorGpio_reduce = service.openGpio(MOTOR_PIN_REDUCE);
-                    mMotorGpio_plus.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
-                    mMotorGpio_reduce.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
-
+                    lmMotorGpio_plus = service.openGpio(LMOTOR_PIN_PLUS);
+                    lmMotorGpio_reduce = service.openGpio(LMOTOR_PIN_REDUCE);
+                    rmMotorGpio_plus = service.openGpio(RMOTOR_PIN_PLUS);
+                    rmMotorGpio_reduce= service.openGpio(RMOTOR_PIN_REDUCE);
+                    rmMotorGpio_plus.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
+                    rmMotorGpio_reduce.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
+                    lmMotorGpio_plus.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
+                    lmMotorGpio_reduce.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 if (value.equals("go")) {
                     try {
-                        setPinValues(false, true);//go
+                        setRightPinValues(true, false);//go
+                        setLeftPinValues(true, false);//go
                     } catch (Exception e) {
                     }
-                } else if (value.equals("stop")) {
+                }
+                else if (value.equals("right")) {
                     try {
-                        setPinValues(false, false);//stop
+                        setRightPinValues(true, false);//go
+                        setLeftPinValues(false, false);//go
+                    } catch (Exception e) {
+                    }}
+                else if (value.equals("left")) {
+                    try {
+                        setRightPinValues(false, false);//go
+                        setLeftPinValues(true, false);//go
+                    } catch (Exception e) {
+                    }}
+                else if (value.equals("stop")) {
+                    try {
+                        setRightPinValues(false, false);//stop
+                        setLeftPinValues(false, false);//go
                     } catch (Exception e) {
                     }
                 } else if (value.equals("back")) {
                     try {
-                        setPinValues(true, false);//back
+                        setRightPinValues(false,true);
+                        setLeftPinValues(false,true);
                     } catch (Exception e) {
                     }
                 }
@@ -409,11 +420,22 @@ public class MainActivity extends AppCompatActivity {
             }});
     }
 
-    private void setPinValues(boolean plus, boolean reduce) {
+    private void setRightPinValues(boolean plus, boolean reduce) {
 
         try {
-            mMotorGpio_plus.setValue(plus);
-            mMotorGpio_reduce.setValue(reduce);
+            rmMotorGpio_plus.setValue(plus);
+            rmMotorGpio_reduce.setValue(reduce);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setLeftPinValues(boolean plus, boolean reduce) {
+
+        try {
+            lmMotorGpio_plus.setValue(plus);
+            lmMotorGpio_reduce.setValue(reduce);
 
         } catch (IOException e) {
             e.printStackTrace();
