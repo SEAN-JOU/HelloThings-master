@@ -19,9 +19,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 
 
-
-
-
 public class MainActivity extends AppCompatActivity {
 
 
@@ -41,16 +38,15 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler = new Handler();
     private Gpio mLedGpio;
     PeripheralManager service;
-    DatabaseReference dbLED, dbMOTOR, dbSERVO,dbAI,dbUltrasound,dbDistance;
+    DatabaseReference dbLED, dbMOTOR, dbSERVO, dbAI, dbUltrasound, dbDistance;
     FirebaseDatabase database;
-    private Gpio rmMotorGpio_plus,rmMotorGpio_reduce,lmMotorGpio_plus,lmMotorGpio_reduce;
+    private Gpio rmMotorGpio_plus, rmMotorGpio_reduce, lmMotorGpio_plus, lmMotorGpio_reduce;
     private Pwm mServo;
-    double aDouble =70;
+    double aDouble = 70;
     private Handler mCallbackHandler;
     private Handler ultrasonicTriggerHandler;
     private static final int INTERVAL_BETWEEN_TRIGGERS = 3000;
     long time1, time2;
-
 
 
     private Runnable triggerRunnable = new Runnable() {
@@ -64,11 +60,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
 
         ActivityCompat.requestPermissions(this, new String[]{
@@ -80,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
         dbLED = database.getReference("dbLED");
         dbMOTOR = database.getReference("dbMOTOR");
         dbSERVO = database.getReference("dbSERVO");
-        dbAI= database.getReference("dbAI");
-        dbAI= database.getReference("dbAI");
+        dbAI = database.getReference("dbAI");
+        dbAI = database.getReference("dbAI");
         dbUltrasound = database.getReference("dbULTRASOUND");
         dbDistance = database.getReference("dbDISTANCE");
         try {
@@ -96,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
 
-                if(value.equals("true")){
+                if (value.equals("true")) {
 
                     HandlerThread handlerThread = new HandlerThread("callbackHandlerThread");
                     handlerThread.start();
@@ -118,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                         // Step 4. Set Active type to HIGH, then it will trigger TRUE (HIGH, active) events
                         mEcho.setActiveType(Gpio.ACTIVE_HIGH);
                         // Step 5. Register an event callback.
-                        mEcho.registerGpioCallback(mCallbackHandler,mCallback);
+                        mEcho.registerGpioCallback(mCallbackHandler, mCallback);
                     } catch (IOException e) {
                         Log.e(TAG, "Error on PeripheralIO API", e);
                     }
@@ -136,22 +132,21 @@ public class MainActivity extends AppCompatActivity {
 
 
                     ultrasonicTriggerHandler.post(triggerRunnable);
-                }
-
-                else {
-                    if(mEcho!=null) {
+                } else {
+                    if (mEcho != null) {
                         try {
                             mEcho.close();
                         } catch (IOException e) {
                             Log.e(TAG, "Error on PeripheralIO API", e);
                         }
                     }
-                    if(mTrigger!= null){
-                    try {
-                        mTrigger.close();
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error on PeripheralIO API", e);
-                    }}
+                    if (mTrigger != null) {
+                        try {
+                            mTrigger.close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error on PeripheralIO API", e);
+                        }
+                    }
                 }
 
             }
@@ -165,15 +160,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     protected void readDistanceAsnyc() throws Exception {
         // Just to be sure, set the trigger first to false
         mTrigger.setValue(false);
-        Thread.sleep(0,2000);
+        Thread.sleep(0, 2000);
 
         // Hold the trigger pin high for at least 10 us
         mTrigger.setValue(true);
-        Thread.sleep(0,10000); //10 microsec
+        Thread.sleep(0, 10000); //10 microsec
 
         // Reset the trigger pin
         mTrigger.setValue(false);
@@ -186,14 +180,14 @@ public class MainActivity extends AppCompatActivity {
             try {
                 mTrigger.setValue(false);
                 try {
-                    Thread.sleep(0,2000);
+                    Thread.sleep(0, 2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
                 mTrigger.setValue(true);
                 try {
-                    Thread.sleep(0,10000);
+                    Thread.sleep(0, 10000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -212,11 +206,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "Echo ENDED!");
 
                 long pulseWidth = time2 - time1;
-                double d = (pulseWidth / 1000.0 ) / 100 ; //cm
+                double d = (pulseWidth / 1000.0) / 100; //cm
                 int distance = (int) d;
                 Log.i(TAG, "distance: " + distance + " cm");
 
-                dbDistance.setValue(distance+"");
+                dbDistance.setValue(distance + "");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -227,16 +221,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onGpioError(Gpio gpio, int error) {
-            try{
-            Log.e(TAG, "error: " + error);
+            try {
+                Log.e(TAG, "error: " + error);
 //            mCallback.onGpioError(gpio,error);
+            } catch (Exception e) {
             }
-            catch (Exception e){}
 
         }
     };
-
-
 
 
     private Runnable mBlinkRunnable = new Runnable() {
@@ -263,17 +255,18 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 if (value.equals("true")) {
-                  Intent intent = new Intent(MainActivity.this,MainActivity2.class);
-                  startActivity(intent);
-                  finish();
-                }
-                 else if (value.equals("false")) {
+                    Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+                    startActivity(intent);
+                    finish();
+                } else if (value.equals("false")) {
 
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
-            }});
+            }
+        });
 
         dbLED.addValueEventListener(new ValueEventListener() {
             @Override
@@ -281,7 +274,6 @@ public class MainActivity extends AppCompatActivity {
                 String value = dataSnapshot.getValue(String.class);
 
                 Log.d(TAG, "Value is: " + value);
-
 
 
                 if (value.equals("true")) {
@@ -321,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
                     lmMotorGpio_plus = service.openGpio(LMOTOR_PIN_PLUS);
                     lmMotorGpio_reduce = service.openGpio(LMOTOR_PIN_REDUCE);
                     rmMotorGpio_plus = service.openGpio(RMOTOR_PIN_PLUS);
-                    rmMotorGpio_reduce= service.openGpio(RMOTOR_PIN_REDUCE);
+                    rmMotorGpio_reduce = service.openGpio(RMOTOR_PIN_REDUCE);
                     rmMotorGpio_plus.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
                     rmMotorGpio_reduce.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
                     lmMotorGpio_plus.setDirection(Gpio.DIRECTION_OUT_INITIALLY_HIGH);
@@ -335,20 +327,19 @@ public class MainActivity extends AppCompatActivity {
                         setLeftPinValues(true, false);//go
                     } catch (Exception e) {
                     }
-                }
-                else if (value.equals("right")) {
+                } else if (value.equals("right")) {
                     try {
                         setRightPinValues(true, false);//go
                         setLeftPinValues(false, false);//go
                     } catch (Exception e) {
-                    }}
-                else if (value.equals("left")) {
+                    }
+                } else if (value.equals("left")) {
                     try {
                         setRightPinValues(false, false);//go
                         setLeftPinValues(true, false);//go
                     } catch (Exception e) {
-                    }}
-                else if (value.equals("stop")) {
+                    }
+                } else if (value.equals("stop")) {
                     try {
                         setRightPinValues(false, false);//stop
                         setLeftPinValues(false, false);//go
@@ -356,8 +347,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else if (value.equals("back")) {
                     try {
-                        setRightPinValues(false,true);
-                        setLeftPinValues(false,true);
+                        setRightPinValues(false, true);
+                        setLeftPinValues(false, true);
                     } catch (Exception e) {
                     }
                 }
@@ -374,9 +365,10 @@ public class MainActivity extends AppCompatActivity {
 
                 if (value.equals("right")) {
 
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() { try {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
                                 mServo.setPwmFrequencyHz(aDouble);
                                 mServo.setPwmDutyCycle(5);
                                 mServo.setEnabled(true);
@@ -384,7 +376,8 @@ public class MainActivity extends AppCompatActivity {
                             } catch (Exception e) {
                                 Log.d("aaaa", "badright");
                             }
-                            }}).start();
+                        }
+                    }).start();
 
 
                 } else if (value.equals("front")) {
@@ -412,12 +405,16 @@ public class MainActivity extends AppCompatActivity {
                             } catch (Exception e) {
                                 Log.d("aaaa", "badleft");
                             }
-                        }}).start();
+                        }
+                    }).start();
 
-                }}
+                }
+            }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
-            }});
+            }
+        });
     }
 
     private void setRightPinValues(boolean plus, boolean reduce) {
@@ -445,7 +442,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-
-      }
     }
+}
