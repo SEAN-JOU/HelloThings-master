@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Hello Things</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="speech_prompt">Say something&#8230;</string>
+    <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
+    <string name="tap_on_mic">Tap to speak</string>
+    <string name="tap_to_play">Tap to Play</string>
 </resources>

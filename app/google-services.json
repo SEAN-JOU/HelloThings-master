@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "1092532938629",
-    "firebase_url": "https://assistant-39b02.firebaseio.com",
-    "project_id": "assistant-39b02",
-    "storage_bucket": "assistant-39b02.appspot.com"
+    "project_number": "966098704322",
+    "firebase_url": "https://hellothings-master-e9b7e.firebaseio.com",
+    "project_id": "hellothings-master-e9b7e",
+    "storage_bucket": "hellothings-master-e9b7e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1092532938629:android:d2a03ddd44eb45d1",
+        "mobilesdk_app_id": "1:966098704322:android:d2a03ddd44eb45d1",
         "android_client_info": {
           "package_name": "com.example.coldnew.hellothings"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1092532938629-6boj7mpbre2rhi9820kh92ski1n0vacj.apps.googleusercontent.com",
+          "client_id": "966098704322-p50f6fk4g009srjd0p9676liiqdus7ed.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.coldnew.hellothings",
@@ -23,13 +23,13 @@
           }
         },
         {
-          "client_id": "1092532938629-n8kvos3rsmhecc4mal70iakm2i58efdp.apps.googleusercontent.com",
+          "client_id": "966098704322-6tvti4e0tr2qv6ktphjhphr7iu6rah3m.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCsnhFT4F-fLiMkyyz6OMbw5kMklj5y7UI"
+          "current_key": "AIzaSyB-zsxUJSlidQj0VTfhSneP4lc2ALq7AKg"
         }
       ],
       "services": {
@@ -40,95 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "1092532938629-n8kvos3rsmhecc4mal70iakm2i58efdp.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1092532938629:android:50d7c9df739c4de5",
-        "android_client_info": {
-          "package_name": "com.shaen.assistant"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "1092532938629-d2ku0janm9o3uc5ve1d0024ma2gias1m.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.shaen.assistant",
-            "certificate_hash": "6c9ef9aa00d706b81bf58180e42f475566de77ac"
-          }
-        },
-        {
-          "client_id": "1092532938629-n8kvos3rsmhecc4mal70iakm2i58efdp.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCsnhFT4F-fLiMkyyz6OMbw5kMklj5y7UI"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1092532938629-n8kvos3rsmhecc4mal70iakm2i58efdp.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1092532938629:android:60d31955b38200e6",
-        "android_client_info": {
-          "package_name": "com.shaen.myapplication2"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "1092532938629-ir56a1v1dlv043c8jakjrsqe97o6leri.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.shaen.myapplication2",
-            "certificate_hash": "6c9ef9aa00d706b81bf58180e42f475566de77ac"
-          }
-        },
-        {
-          "client_id": "1092532938629-n8kvos3rsmhecc4mal70iakm2i58efdp.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCsnhFT4F-fLiMkyyz6OMbw5kMklj5y7UI"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1092532938629-n8kvos3rsmhecc4mal70iakm2i58efdp.apps.googleusercontent.com",
+              "client_id": "966098704322-6tvti4e0tr2qv6ktphjhphr7iu6rah3m.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

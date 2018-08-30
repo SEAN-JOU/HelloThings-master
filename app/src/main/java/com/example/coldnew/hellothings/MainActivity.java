@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this, new String[]{
                 "com.google.android.things.permission.MANAGE_INPUT_DRIVERS",
+                "android.permission.RECORD_AUDIO",
                 "com.google.android.things.permission.USE_PERIPHERAL_IO"}, 0);
 
         service = PeripheralManager.getInstance();
@@ -76,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         dbLED = database.getReference("dbLED");
         dbMOTOR = database.getReference("dbMOTOR");
         dbSERVO = database.getReference("dbSERVO");
-        dbAI = database.getReference("dbAI");
         dbAI = database.getReference("dbAI");
         dbUltrasound = database.getReference("dbULTRASOUND");
         dbDistance = database.getReference("dbDISTANCE");
