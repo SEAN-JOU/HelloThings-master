@@ -1,9 +1,9 @@
 package com.example.coldnew.hellothings;
 
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -12,27 +12,20 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.Locale;
-
-import static android.media.MediaRecorder.*;
-import static android.media.MediaRecorder.AudioSource.*;
 
 
 public class MainActivity2 extends AppCompatActivity {
@@ -44,6 +37,7 @@ public class MainActivity2 extends AppCompatActivity {
     private ImageButton playBtn;
     private TextView textInput;
     private TextToSpeech mTts;
+    UsbManager mUsbManager;
     private final int REQ_CODE_SPEECH_INPUT = 100;
     private final int MY_DATA_CHECK_CODE=150;
     private static final boolean USE_VOICEHAT_I2S_DAC = Build.DEVICE.equals("rpi3");
@@ -53,9 +47,21 @@ public class MainActivity2 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
+//        UsbManager usbManager = getSystemService(UsbManager.class);
+//        Map<String, UsbDevice> connectedDevices = usbManager.getDeviceList();
+//        for (UsbDevice device : connectedDevices.values()) {
+//            if (device.getVendorId() == 0x2341 && device.getProductId() == 0x0001) {
+//
+//                startSerialConnection(usbManager, device);
+//                break;
+//            }
+//        }
+
+
         database = FirebaseDatabase.getInstance();
         dbAI= database.getReference("dbAI");
 
+        mUsbManager = getSystemService(UsbManager.class);
 
         btn=(ImageButton)findViewById(R.id.mic);
         playBtn=(ImageButton)findViewById(R.id.playButton);
@@ -90,6 +96,8 @@ public class MainActivity2 extends AppCompatActivity {
         }
 
     }
+
+
     private static final int SAMPLE_RATE = 44100;
     private static final int ENCODING_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
     private static final int CHANNEL_FORMAT = AudioFormat.CHANNEL_IN_MONO;
@@ -216,6 +224,27 @@ public class MainActivity2 extends AppCompatActivity {
         startActivityForResult(checkIntent,MY_DATA_CHECK_CODE);
     }
 
-
+//    void startSerialConnection(UsbManager usbManager, UsbDevice device) {
+//        UsbDeviceConnection connection = usbManager.openDevice(device);
+//        UsbSerialDevice serial = UsbSerialDevice.createUsbSerialDevice(device, connection);
+//
+//        if (serial != null && serial.open()) {
+//            serial.setBaudRate(44100);
+//            serial.setDataBits(UsbSerialInterface.DATA_BITS_8);
+//            serial.setStopBits(UsbSerialInterface.STOP_BITS_1);
+//            serial.setParity(UsbSerialInterface.PARITY_NONE);
+//            serial.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
+//            serial.read(mCallback);
+//        }
+//    }
+//    UsbSerialInterface.UsbReadCallback mCallback = (data) -> {
+//        String dataStr = null;
+//        try {
+//            dataStr = new String(data, "UTF-8");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        Log.i("AAA", "Data received: " + dataStr);
+//    };
 
 }
