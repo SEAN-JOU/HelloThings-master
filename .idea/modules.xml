@@ -4,8 +4,10 @@
     <modules>
       <module fileurl="file://\Volumes\Data\Workspace\AndroidStudioProjects\HelloThings\HelloThings.iml" filepath="\Volumes\Data\Workspace\AndroidStudioProjects\HelloThings\HelloThings.iml" />
       <module fileurl="file://$PROJECT_DIR$/HelloThings-master.iml" filepath="$PROJECT_DIR$/HelloThings-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aars/aars.iml" filepath="$PROJECT_DIR$/aars/aars.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://\Volumes\Data\Workspace\AndroidStudioProjects\HelloThings\app\app.iml" filepath="\Volumes\Data\Workspace\AndroidStudioProjects\HelloThings\app\app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cmusphinx-models/cmusphinx-models.iml" filepath="$PROJECT_DIR$/cmusphinx-models/cmusphinx-models.iml" />
     </modules>
   </component>
 </project>

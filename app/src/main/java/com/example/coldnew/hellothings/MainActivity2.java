@@ -3,7 +3,6 @@ package com.example.coldnew.hellothings;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.usb.UsbManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -19,16 +18,18 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
 
-public class MainActivity2 extends AppCompatActivity {
+public class MainActivity2 extends AppCompatActivity implements TtsSpeaker.Listener, PocketSphinx.Listener {
 
 
     FirebaseDatabase database;
@@ -37,63 +38,52 @@ public class MainActivity2 extends AppCompatActivity {
     private ImageButton playBtn;
     private TextView textInput;
     private TextToSpeech mTts;
-    UsbManager mUsbManager;
     private final int REQ_CODE_SPEECH_INPUT = 100;
-    private final int MY_DATA_CHECK_CODE=150;
+    private final int MY_DATA_CHECK_CODE = 150;
     private static final boolean USE_VOICEHAT_I2S_DAC = Build.DEVICE.equals("rpi3");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-//        UsbManager usbManager = getSystemService(UsbManager.class);
-//        Map<String, UsbDevice> connectedDevices = usbManager.getDeviceList();
-//        for (UsbDevice device : connectedDevices.values()) {
-//            if (device.getVendorId() == 0x2341 && device.getProductId() == 0x0001) {
-//
-//                startSerialConnection(usbManager, device);
-//                break;
-//            }
-//        }
-
 
         database = FirebaseDatabase.getInstance();
-        dbAI= database.getReference("dbAI");
+        dbAI = database.getReference("dbAI");
 
-        mUsbManager = getSystemService(UsbManager.class);
+        promptSpeechInput();
 
-        btn=(ImageButton)findViewById(R.id.mic);
-        playBtn=(ImageButton)findViewById(R.id.playButton);
-        textInput=(TextView)findViewById(R.id.txtSpeechInput);
+
+        btn = (ImageButton) findViewById(R.id.mic);
+        playBtn = (ImageButton) findViewById(R.id.playButton);
+        textInput = (TextView) findViewById(R.id.txtSpeechInput);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                promptSpeechInput();
-            }
-        });
+
+            }});
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 textToSpeechConverter();
-                Log.v("Main","play button");
-            }
-        });
+                Log.v("Main", "play button");
+            }});
 
 
-        initAudioRecorder();
-        AudioDeviceInfo audioInputDevice = null;
-        AudioDeviceInfo audioOutputDevice = null;
-        if (USE_VOICEHAT_I2S_DAC) {
-            audioInputDevice = findAudioDevice(AudioManager.GET_DEVICES_INPUTS, AudioDeviceInfo.TYPE_USB_DEVICE);
-            if (audioInputDevice == null) {
-
-            }
-            audioOutputDevice = findAudioDevice(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_USB_DEVICE);
-            if (audioOutputDevice == null) {
-
-            }
-        }
+//        initAudioRecorder();
+//        AudioDeviceInfo audioInputDevice = null;
+//        AudioDeviceInfo audioOutputDevice = null;
+//        if (USE_VOICEHAT_I2S_DAC) {
+//            audioInputDevice = findAudioDevice(AudioManager.GET_DEVICES_INPUTS, AudioDeviceInfo.TYPE_USB_DEVICE);
+//            if (audioInputDevice == null) {
+//
+//            }
+//            audioOutputDevice = findAudioDevice(AudioManager.GET_DEVICES_OUTPUTS, AudioDeviceInfo.TYPE_USB_DEVICE);
+//            if (audioOutputDevice == null) {
+//
+//            }
+//        }
 
     }
 
@@ -116,7 +106,7 @@ public class MainActivity2 extends AppCompatActivity {
                                 .setSampleRate(SAMPLE_RATE)
                                 .setChannelMask(CHANNEL_FORMAT)
                                 .build())
-                        .setBufferSizeInBytes(2*mBufferSize)
+                        .setBufferSizeInBytes(2 * mBufferSize)
                         .build();
                 mRecorder.startRecording();
             } catch (UnsupportedOperationException e) {
@@ -124,8 +114,6 @@ public class MainActivity2 extends AppCompatActivity {
             }
         }
     }
-
-
 
 
     private AudioDeviceInfo findAudioDevice(int deviceFlag, int deviceType) {
@@ -147,29 +135,29 @@ public class MainActivity2 extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 if (value.equals("true")) {
-                }
-                else if (value.equals("false")) {
-                    Intent intent = new Intent(MainActivity2.this,MainActivity.class);
+                } else if (value.equals("false")) {
+
+                    Intent intent = new Intent(MainActivity2.this, MainActivity.class);
                     startActivity(intent);
                     finish();
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
-            }});}
-    private void promptSpeechInput()
-    {
+            }
+        });
+    }
 
-        Intent intent=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    private void promptSpeechInput() {
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,R.string.speech_prompt);
-        try
-        {
-            startActivityForResult(intent,REQ_CODE_SPEECH_INPUT);
-        }
-        catch (ActivityNotFoundException a)
-        {
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, R.string.speech_prompt);
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
             Toast.makeText(getApplicationContext(),
                     R.string.speech_not_supported,
                     Toast.LENGTH_SHORT).show();
@@ -179,13 +167,10 @@ public class MainActivity2 extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode)
-        {
-            case REQ_CODE_SPEECH_INPUT:
-            {
-                if(resultCode==RESULT_OK && data!=null)
-                {
-                    ArrayList<String> result=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && data != null) {
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     textInput.setText(result.get(0));
                 }
             }
@@ -196,12 +181,12 @@ public class MainActivity2 extends AppCompatActivity {
                     installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
                     Log.v("Main", "need intallation");
                     startActivity(installIntent);
-                     mTts=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                         @Override
-                         public void onInit(int status) {
+                    mTts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                        @Override
+                        public void onInit(int status) {
 
-                         }
-                     });
+                        }
+                    });
 
                 }
                 mTts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
@@ -217,34 +202,41 @@ public class MainActivity2 extends AppCompatActivity {
             }
         }
     }
-    private void textToSpeechConverter()
-    {
-        Intent checkIntent=new Intent();
+
+    private void textToSpeechConverter() {
+        Intent checkIntent = new Intent();
         checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-        startActivityForResult(checkIntent,MY_DATA_CHECK_CODE);
+        startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
     }
 
-//    void startSerialConnection(UsbManager usbManager, UsbDevice device) {
-//        UsbDeviceConnection connection = usbManager.openDevice(device);
-//        UsbSerialDevice serial = UsbSerialDevice.createUsbSerialDevice(device, connection);
-//
-//        if (serial != null && serial.open()) {
-//            serial.setBaudRate(44100);
-//            serial.setDataBits(UsbSerialInterface.DATA_BITS_8);
-//            serial.setStopBits(UsbSerialInterface.STOP_BITS_1);
-//            serial.setParity(UsbSerialInterface.PARITY_NONE);
-//            serial.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-//            serial.read(mCallback);
-//        }
-//    }
-//    UsbSerialInterface.UsbReadCallback mCallback = (data) -> {
-//        String dataStr = null;
-//        try {
-//            dataStr = new String(data, "UTF-8");
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//        Log.i("AAA", "Data received: " + dataStr);
-//    };
 
+    @Override
+    public void onTtsInitialized() {
+
+    }
+
+    @Override
+    public void onTtsSpoken() {
+
+    }
+
+    @Override
+    public void onSpeechRecognizerReady() {
+
+    }
+
+    @Override
+    public void onActivationPhraseDetected() {
+
+    }
+
+    @Override
+    public void onTextRecognized(String recognizedText) {
+
+    }
+
+    @Override
+    public void onTimeout() {
+
+    }
 }

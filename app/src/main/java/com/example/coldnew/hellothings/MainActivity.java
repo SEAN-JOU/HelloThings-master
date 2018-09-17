@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String LED = "BCM26"; //physical pin #37
     public static final String RMOTOR_PIN_PLUS = "BCM14"; //physical pin #8
     public static final String RMOTOR_PIN_REDUCE = "BCM27"; //physical pin #11
-
     public static final String LMOTOR_PIN_PLUS = "BCM15"; //physical pin #10
     public static final String LMOTOR_PIN_REDUCE = "BCM17"; //physical pin #11
     private static final String PWM_PIN = "PWM1"; //physical pin 35 or 33
@@ -438,7 +437,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
