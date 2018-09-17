@@ -25,13 +25,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 
 public class MainActivity2 extends AppCompatActivity implements TtsSpeaker.Listener, PocketSphinx.Listener {
 
-
+    private TtsSpeaker tts;
+    private PocketSphinx pocketsphinx;
+    private State state;
     FirebaseDatabase database;
     DatabaseReference dbAI;
     private ImageButton btn;
@@ -48,11 +53,9 @@ public class MainActivity2 extends AppCompatActivity implements TtsSpeaker.Liste
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-
+        tts = new TtsSpeaker(this, this);
         database = FirebaseDatabase.getInstance();
         dbAI = database.getReference("dbAI");
-
-        promptSpeechInput();
 
 
         btn = (ImageButton) findViewById(R.id.mic);
@@ -61,7 +64,7 @@ public class MainActivity2 extends AppCompatActivity implements TtsSpeaker.Liste
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                promptSpeechInput();
             }});
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,7 +156,7 @@ public class MainActivity2 extends AppCompatActivity implements TtsSpeaker.Liste
 
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"en-US");
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, R.string.speech_prompt);
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
@@ -210,33 +213,84 @@ public class MainActivity2 extends AppCompatActivity implements TtsSpeaker.Liste
     }
 
 
+    private enum State {
+        INITALIZING,
+        LISTENING_TO_KEYPHRASE,
+        CONFIRMING_KEYPHRASE,
+        LISTENING_TO_ACTION,
+        CONFIRMING_ACTION,
+        TIMEOUT
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        tts.onDestroy();
+        pocketsphinx.onDestroy();
+    }
+
     @Override
     public void onTtsInitialized() {
-
+        // There's no runtime permissions on Android Things.
+        // Otherwise, we would first have to ask for the Manifest.permission.RECORD_AUDIO
+        pocketsphinx = new PocketSphinx(this, this);
     }
 
     @Override
     public void onTtsSpoken() {
-
+        switch (state) {
+            case INITALIZING:
+            case CONFIRMING_ACTION:
+            case TIMEOUT:
+                state = State.LISTENING_TO_KEYPHRASE;
+                pocketsphinx.startListeningToActivationPhrase();
+                break;
+            case CONFIRMING_KEYPHRASE:
+                state = State.LISTENING_TO_ACTION;
+                pocketsphinx.startListeningToAction();
+                break;
+        }
     }
 
     @Override
     public void onSpeechRecognizerReady() {
-
+        state = State.INITALIZING;
+        textInput.setText("I'm ready!");
     }
 
     @Override
     public void onActivationPhraseDetected() {
-
+        state = State.CONFIRMING_KEYPHRASE;
+        textInput.setText("Yup?");
     }
 
     @Override
     public void onTextRecognized(String recognizedText) {
+        state = State.CONFIRMING_ACTION;
 
+        String answer;
+        String input = recognizedText == null ? "" : recognizedText;
+        if (input.contains("tv")) {
+            answer = "No, you need to work!";
+        } else if (input.contains("time")) {
+            DateFormat dateFormat = new SimpleDateFormat("HH mm", Locale.US);
+            answer = "It is " + dateFormat.format(new Date());
+        } else if (input.matches(".* joke")) {
+            answer = "You are a joke.";
+        } else if (input.contains("weather")) {
+            answer = "Buy me some sensors, and I will tell you.";
+        } else if (input.matches("how are you.*")) {
+            answer = "Could not be worst with you.";
+        } else {
+            answer = "Sorry, I didn't understand your poor English.";
+        }
+        textInput.setText(answer);
     }
 
     @Override
     public void onTimeout() {
-
+        state = State.TIMEOUT;
+        textInput.setText("Timeout! You're too slow");
     }
 }

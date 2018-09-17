@@ -114,7 +114,9 @@ public class PocketSphinx implements RecognitionListener {
     }
 
     public void startListeningToAction() {
-        Log.i(TAG, "Start listening for some actions with a 10secs timeout");
+        Log.i(TAG, "Start " +
+                "" +
+                " for some actions with a 10secs timeout");
         recognizer.startListening(ACTION_SEARCH, 10000);
     }
 
