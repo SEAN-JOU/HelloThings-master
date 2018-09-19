@@ -12,10 +12,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.apps.googlevoice.permission.AUTO_SEND"/>
 
-    <!-- <uses-feature android:name="android.hardware.usb.host" /> -->
-    <!-- <uses-sdk android:name="12" /> -->
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -41,13 +40,11 @@
         </activity>
         <activity android:name=".MainActivity2">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.IOT_LAUNCHER" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.SEND" />
             </intent-filter>
+
         </activity>
+        <activity android:name=".Main3Activity"></activity>
     </application>
 
 </manifest>
